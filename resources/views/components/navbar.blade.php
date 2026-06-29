@@ -20,7 +20,7 @@
             <div class="ml-10 flex items-baseline space-x-2">
               <!-- Current: "bg-gray-950/50 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->           
               <a href="/" class="{{ request() -> is ('/') ? 'bg-gray-800/50 px-3 py-2 text-sm font-medium text-white' : 'px-3 py-2 text-sm font-medium text-white/300 hover:bg-white/5 hover:text-white' }} rounded-md ">Akreditasi Prodi</a>
-              <a href="/akreuniv" class="{{ request() -> is ('akreuniv') ? 'bg-gray-800/50 px-3 py-2 text-sm font-medium text-white' : 'px-3 py-2 text-sm font-medium text-white/300 hover:bg-white/5 hover:text-white' }} rounded-md">Akreditasi Universitas</a>
+              <a href="{{ url('akreuniv') }}" class="{{ request() -> is ('akreuniv') ? 'bg-gray-800/50 px-3 py-2 text-sm font-medium text-white' : 'px-3 py-2 text-sm font-medium text-white/300 hover:bg-white/5 hover:text-white' }} rounded-md">Akreditasi Universitas</a>
             </div>
           </div>
         </div>

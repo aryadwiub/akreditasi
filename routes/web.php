@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RekapController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\AkreditasiController;
 Route::get('/', [AkreditasiController::class, 'index'], function () {
     // dump(request('cari')); 
 });
+//API
+Route::get('/api', [ApiController::class, 'index']);
 //user
 Route::get('/detailprodi/{id_prodi}', [AkreditasiController::class, 'detail']);
 Route::get('/akreuniv', [AkreditasiController::class, 'universitas']);
