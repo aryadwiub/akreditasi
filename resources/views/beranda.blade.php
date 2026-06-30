@@ -2,94 +2,81 @@
     <x-slot:judul>{{ $judul }}</x-slot>
 
     <div class="card relative overflow-x-auto shadow-md sm:rounded-lg px-20 py-6 place-items-center">
-        <table class=
-        "display" 
-        id="data">
-            {{-- <tfoot class="text-s text-center text-gray-700 uppercase bg-gray-300 dark:bg-gray-300 dark:text-gray-600">
+        <table class="display" id="data">
+            <tfoot class="text-s text-center text-gray-700 uppercase bg-gray-300 dark:bg-gray-300 dark:text-gray-600">
                 <tr>
-                    <th scope="col" class="px-6 py-3"></th> 
+                    <th scope="col" class="px-6 py-3"></th>
                     <th scope="col" class="px-6 py-3">Jenjang</th>
                     <th scope="col" class="px-6 py-3"></th>
                     <th scope="col" class="px-6 py-3">Fakultas</th>
                     <th scope="col" class="px-6 py-3">Akreditasi Nasional</th>
+                    <th scope="col" class="px-6 py-3">Tanggal Berlaku</th>
                     <th scope="col" class="px-6 py-3">Tanggal Kadaluwarsa</th>
                     <th scope="col" class="px-6 py-3"></th>
-                    <th scope="col" class="px-6 py-3">Akreditasi Interasional</th>
+                    <!-- <th scope="col" class="px-6 py-3">Akreditasi Interasional</th>
                     <th scope="col" class="px-6 py-3">Tanggal Kadaluwarsa</th>
-                    <th scope="col" class="px-10 py-3"></th>
+                    <th scope="col" class="px-10 py-3"></th> -->
                 </tr>
-            </tfoot> --}}
+            </tfoot>
             <thead class="text-xs text-center text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-200">
                 <tr>
-                    <th scope="col" class="px-6 py-3">NO</th> 
+                    <th scope="col" class="px-6 py-3">NO</th>
                     <th scope="col" class="px-6 py-3">Jenjang</th>
                     <th scope="col" class="px-6 py-3">Nama Program Studi</th>
                     <th scope="col" class="px-6 py-3">Fakultas</th>
                     <th scope="col" class="px-6 py-3">Akreditasi Nasional</th>
+                    <th scope="col" class="px-6 py-3">Tanggal Berlaku</th>
                     <th scope="col" class="px-6 py-3">Tanggal Kadaluwarsa</th>
                     <th scope="col" class="px-6 py-3">Download SK Nasional</th>
-                    <th scope="col" class="px-6 py-3">Akreditasi Interasional</th>
+                    <!-- <th scope="col" class="px-6 py-3">Akreditasi Interasional</th>
                     <th scope="col" class="px-6 py-3">Tanggal Kadaluwarsa</th>
-                    <th scope="col" class="px-6 py-3">Download SK Internasional</th>
+                    <th scope="col" class="px-6 py-3">Download SK Internasional</th> -->
                 </tr>
             </thead>
             <tbody>
                 @php
                     $no = 1;
                 @endphp
-                @foreach ($data as $data)
+                @foreach ($nas as $nas)
                     <tr
                         class="px-6 py-4 border-b dark:border-gray-300 text-xs font-medium  text-gray-900 whitespace-wrap dark:text-black">
                         <td class="px-6 py-4"></td>
-                        <td class="px-6 py-4">{{ $data->nama_jenjang }}</td>
-                        <td class="px-6 py-4"><a href="">{{ $data->nama_prodi }}</a></td>
-                        <td class="px-6 py-4">{{ $data->nm_fakultas }}</td>
-                        <td class="px-6 py-4">{{ $data->akreditasi }}</td>
-                        <td class="px-6 py-4">{{ $data->end_date }}</td>
+                        <td class="px-6 py-4">{{ $nas->nama_jenjang }}</td>
+                        <td class="px-6 py-4"><a href="">{{ $nas->nama_prodi }}</a></td>
+                        <td class="px-6 py-4">{{ $nas->nm_fakultas }}</td>
+                        <td class="px-6 py-4">{{ $nas->akreditasi }}</td>
+                        <td class="px-6 py-4">{{ $nas->start_date }}</td>
+                        <td class="px-6 py-4">{{ $nas->end_date }}</td>
                         <td class="px-6 py-4 text-center">
-                            @if ($data->url != '')
-                                <a class="bg-blue-500 hover:bg-blue-700 text-white font-sans py-1 px-1 text-xs rounded" href="{{ url('unduh/'.$data->id_prodi) }}">
-                                <span>File Terbaru</span>
+                            @if ($nas->url != '')
+                                <a class="bg-blue-500 hover:bg-blue-700 text-white font-sans py-1 px-1 text-xs rounded"
+                                    href="{{ url('unduh/' . $nas->id_prodi) }}">
+                                    <span>File Terbaru</span>
                                 </a>
-                                @else
+                            @else
                                 <span>-- File Belum Tersedia --</span>
                             @endif
                             <br>
                             @php
-                                $dokumen = 
-                                // DB::select("select id, date_format(tgl_awal,'%Y') as tgl_awal, date_format(tgl_akhir,'%Y') as tgl_akhir 
-                                //     from riwayat_akreditasi_dokumen as Z where Z.id_prodi = '$data->id_prodi'
-                                //     order by id desc");
-                                    DB::table('riwayat_akreditasi_dokumen as Z')
-                                        ->select('id', DB::raw('date_format(tgl_awal,"%Y") as tgl_awal'), DB::raw('date_format(tgl_akhir,"%Y") as tgl_akhir'))
-                                        ->where('Z.id_prodi', '=', $data->id_prodi)
-                                        ->get();
-                            //   dd($dokumen);
+                                $dokumen = DB::table('riwayat_akreditasi_dokumen as Z')
+                                    ->select(
+                                        'id',
+                                        DB::raw('date_format(tgl_awal,"%Y") as tgl_awal'),
+                                        DB::raw('date_format(tgl_akhir,"%Y") as tgl_akhir'),
+                                    )
+                                    ->where('Z.id_prodi', '=', $nas->id_prodi)
+                                    ->get();
+                                // dd($dokumen);
                             @endphp
                             @foreach ($dokumen as $dokumen)
-                            <br>
-                                <a class="bg-blue-500 hover:bg-blue-700 text-white font-sans py-1 px-1 text-xs rounded" href="{{ url('unduhhis/'.$data->id_prodi) }}">
-                                <span>{{ $dokumen->tgl_awal }} - {{ $dokumen->tgl_akhir }}</span>
+                                <br>
+                                <a class="bg-blue-500 hover:bg-blue-700 text-white font-sans py-1 px-1 text-xs rounded"
+                                    href="{{ url('unduhhis/' . $nas->id_prodi) }}">
+                                    <span>{{ $dokumen->tgl_awal }} - {{ $dokumen->tgl_akhir }}</span>
                                 </a>
-                            <br>
+                                <br>
                             @endforeach
                             {{-- <span>tes doku</span> --}}
-                        </td>
-                        <td class="px-6 py-4">{{ $data->internasional }}
-
-                        </td>
-                        <td class="px-6 py-4">
-                            @if ($data->tgl_akhir == '1')
-                                {{ $data->tgl_berakhir }}
-                            @endif
-                        </td>
-                        <td class="px-6 py-4">
-                            @if ($data->urlinter != '')
-                            <a class="bg-blue-500 hover:bg-blue-700 text-white font-sans whitespace-wrap py-1 px-2 text-xs rounded"
-                                href="{{ url('unduh/' . $data->id_riwayat) }}">Download</a>
-                                @else
-                                -- File Belum Tersedia --
-                            @endif
                         </td>
                     </tr>
                 @endforeach
@@ -142,40 +129,52 @@
                                             class="odd:bg-white odd:dark:bg-gray-200 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-400 border-gray-200">
                                             <td scope="row"
                                                 class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->nama_jenjang }}</td>
+                                                {{ $nasional->nama_jenjang }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->Terakre_unggul }}</td>
+                                                {{ $nasional->Terakre_unggul }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->Unggul }}</td>
+                                                {{ $nasional->Unggul }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->A }}</td>
+                                                {{ $nasional->A }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->Baik_sekali }}</td>
+                                                {{ $nasional->Baik_sekali }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->Baik }}</td>
+                                                {{ $nasional->Baik }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->B }}</td>
+                                                {{ $nasional->B }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->C }}</td>
+                                                {{ $nasional->C }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->Minimum }}</td>
+                                                {{ $nasional->Minimum }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->Sementara }}</td>
+                                                {{ $nasional->Sementara }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->Reakreditasi }}</td>
+                                                {{ $nasional->Reakreditasi }}
+                                            </td>
                                             <td
                                                 class="px-4 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $nasional->Proses }}</td>
+                                                {{ $nasional->Proses }}
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -187,37 +186,48 @@
                                                 TOTAL</th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->Terakre_unggul }}</th>
+                                                {{ $total_nas->Terakre_unggul }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->Unggul }}</th>
+                                                {{ $total_nas->Unggul }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->A }}</th>
+                                                {{ $total_nas->A }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->Baik_sekali }}</th>
+                                                {{ $total_nas->Baik_sekali }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->Baik }}</th>
+                                                {{ $total_nas->Baik }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->B }}</th>
+                                                {{ $total_nas->B }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->C }}</th>
+                                                {{ $total_nas->C }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->Minimum }}</th>
+                                                {{ $total_nas->Minimum }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->Sementara }}</th>
+                                                {{ $total_nas->Sementara }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->Reakreditasi }}</th>
+                                                {{ $total_nas->Reakreditasi }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_nas->Proses }}</th>
+                                                {{ $total_nas->Proses }}
+                                            </th>
                                         </tr>
                                     @endforeach
                                 </tfoot>
@@ -255,16 +265,20 @@
                                             class="odd:bg-white odd:dark:bg-gray-200 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-400 border-gray-200">
                                             <td scope="row"
                                                 class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $internasional->nama_jenjang }}</td>
+                                                {{ $internasional->nama_jenjang }}
+                                            </td>
                                             <td
                                                 class="px-6 py-4 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $internasional->ASIIN }}</td>
+                                                {{ $internasional->ASIIN }}
+                                            </td>
                                             <td
                                                 class="px-6 py-4 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $internasional->FIBAA }}</td>
+                                                {{ $internasional->FIBAA }}
+                                            </td>
                                             <td
                                                 class="px-6 py-4 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $internasional->RSC }}</td>
+                                                {{ $internasional->RSC }}
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -276,13 +290,16 @@
                                                 TOTAL</th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_inter->ASIIN }}</th>
+                                                {{ $total_inter->ASIIN }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_inter->FIBAA }}</th>
+                                                {{ $total_inter->FIBAA }}
+                                            </th>
                                             <th scope="col"
                                                 class="px-6 py-3 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                                {{ $total_inter->RSC }}</th>
+                                                {{ $total_inter->RSC }}
+                                            </th>
                                         </tr>
                                     @endforeach
                                 </tfoot>
@@ -303,7 +320,7 @@
                         var column = this;
                         var select = $(
                                 '<select style="width: 100px"><option value="">Show All</option></select>'
-                                )
+                            )
                             .appendTo($(column.footer()).empty())
                             .on('change', function() {
                                 var val = $.fn.dataTable.util.escapeRegex(
@@ -325,7 +342,42 @@
         });
     </script> --}}
 
-        <script type="text/javascript">
+    {{-- <script type="text/javascript">
+        new DataTable('#data', {
+            initComplete: function() {
+                this.api()
+                    .columns()
+                    .every(function() {
+                        let column = this;
+
+                        // Create select element
+                        let select = document.createElement('select');
+                        select.add(new Option(''));
+                        column.footer().replaceChildren(select);
+
+                        // Apply listener for user change in value
+                        select.addEventListener('change', function() {
+                            column
+                                .search(select.value, {
+                                    exact: true
+                                })
+                                .draw();
+                        });
+
+                        // Add list of options
+                        column
+                            .data()
+                            .unique()
+                            .sort()
+                            .each(function(d, j) {
+                                select.add(new Option(d));
+                            });
+                    });
+            }
+        });
+    </script> --}}
+
+    <script type="text/javascript">
         const table = new DataTable('#data', {
             columnDefs: [{
                 searchable: true,
@@ -348,6 +400,36 @@
                         });
                 }
             }
+            // initComplete: function() {
+            //     this.api()
+            //         .columns()
+            //         .every(function() {
+            //             let column = this;
+
+            //             // Create select element
+            //             let select = document.createElement('select');
+            //             select.add(new Option(''));
+            //             column.footer().replaceChildren(select);
+
+            //             // Apply listener for user change in value
+            //             select.addEventListener('change', function() {
+            //                 column
+            //                     .search(select.value, {
+            //                         exact: true
+            //                     })
+            //                     .draw();
+            //             });
+
+            //             // Add list of options
+            //             column
+            //                 .data()
+            //                 .unique()
+            //                 .sort()
+            //                 .each(function(d, j) {
+            //                     select.add(new Option(d));
+            //                 });
+            //         });
+            // }
         });
     </script>
 </x-layout>
