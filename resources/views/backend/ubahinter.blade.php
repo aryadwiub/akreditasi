@@ -22,9 +22,12 @@
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lembaga</label>
                             <select id="lembaga" name="lembaga"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    <option selected="{{ $ambil->lembaga }}">{{ $ambil->nama_lembaga }}</option>
-                                @foreach ($lembaga as $lembaga)
-                                    <option value="{{ $lembaga->id_akre }}">{{ $lembaga->nama_lembaga }}</option>
+                                @if (!$ambil->nama_lembaga)
+                                    {{-- id lembaga tidak ada di tabel nama_lembaga_internasional: tetap pertahankan nilai lama --}}
+                                    <option value="{{ $ambil->lembaga }}" selected>{{ $ambil->lembaga ?: '------' }}</option>
+                                @endif
+                                @foreach ($lembaga as $item)
+                                    <option value="{{ $item->id_akre }}" @selected($item->id_akre == $ambil->lembaga)>{{ $item->nama_lembaga }}</option>
                                 @endforeach
                             </select>
                         </div>

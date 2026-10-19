@@ -22,9 +22,14 @@
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Akreditasi</label>
                             <select id="akreditasi" name="akreditasi"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    <option selected="{{ $ambil->akreditasi }}">{{ $ambil->akre }}</option>
-                                @foreach ($peringkat as $peringkat)
-                                    <option value="{{ $peringkat->kode }}">{{ $peringkat->akreditasi }}</option>
+                                @if ($ambil->akreditasi == '')
+                                    <option value="" selected disabled>------</option>
+                                @elseif (!$ambil->akre)
+                                    {{-- kode tidak ada di tabel peringkat: tetap pertahankan nilai lama --}}
+                                    <option value="{{ $ambil->akreditasi }}" selected>{{ $ambil->akreditasi }}</option>
+                                @endif
+                                @foreach ($peringkat as $item)
+                                    <option value="{{ $item->kode }}" @selected($item->kode === $ambil->akreditasi)>{{ $item->akreditasi }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -33,10 +38,16 @@
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lembaga</label>
                             <select id="lembaga" name="lembaga"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option selected="{{ $ambil->lembaga }}">{{ $ambil->lembaga }}</option>
-                                @foreach ($lembaga as $akreditasi)
-                                    <option value="{{ $akreditasi->nm_akreditasi }}">
-                                        {{ $akreditasi->nm_akreditasi }}</option>
+                                @if ($ambil->lembaga == '')
+                                    <option value="" selected disabled>------</option>
+                                @else
+                                    {{-- nilai lama dipertahankan apa adanya walau tidak ada di tabel jenis_akreditasi --}}
+                                    <option value="{{ $ambil->lembaga }}" selected>{{ $ambil->lembaga }}</option>
+                                @endif
+                                @foreach ($lembaga as $item)
+                                    @if (strcasecmp($item->nm_akreditasi, (string) $ambil->lembaga) !== 0)
+                                        <option value="{{ $item->nm_akreditasi }}">{{ $item->nm_akreditasi }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>
@@ -64,19 +75,30 @@
                                 placeholder="" required="" value="{{ $ambil->end_date }}">
                         </div>
 
-                        {{-- <div class="col-span-2">
-                            <label for="file"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">File</label>
-                            <input type="file" name="file" id="file" aria-describedby="file"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 focus:outline-none"
-                                required="">
-                        </div> --}}
-                        <div class="col-span-2">
-                            <label for="file"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Link File</label>
-                            <input type="text" name="file" id="file"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                placeholder="" required="" value="{{ $ambil->url }}">
+                        <div class="col-span-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                            <p class="mb-2 text-xs text-gray-500">Minimal salah satu harus ada: file PDF atau link file. Jika ada file upload, file itu yang ditampilkan ke publik.</p>
+                            @if ($ambil->file)
+                                <div class="mb-3 flex flex-wrap items-center gap-3 text-sm">
+                                    <a href="{{ url('filesk/' . $ambil->id_riwayat_akreditasi) }}" target="_blank" rel="noopener"
+                                        class="font-medium text-indigo-600 hover:underline">Lihat file saat ini</a>
+                                    <label class="inline-flex items-center gap-1 text-red-700">
+                                        <input type="checkbox" name="hapus_berkas" value="1" @checked(old('hapus_berkas'))
+                                            class="size-4 rounded border-gray-300 text-red-600 focus:ring-red-500">
+                                        Hapus file upload
+                                    </label>
+                                </div>
+                            @endif
+                            <label for="berkas"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ $ambil->file ? 'Ganti File' : 'Upload File' }} (PDF, maks. 10 MB)</label>
+                            <input type="file" name="berkas" id="berkas" accept="application/pdf,.pdf"
+                                class="block w-full cursor-pointer rounded-lg border border-gray-300 bg-white text-sm text-gray-900 file:mr-3 file:border-0 file:bg-gray-800 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-gray-700">
+                            @error('berkas') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <label for="url"
+                                class="mt-3 block mb-2 text-sm font-medium text-gray-900 dark:text-white">Link File</label>
+                            <input type="url" name="url" id="url"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                placeholder="https://..." value="{{ old('url', $ambil->url) }}">
+                            @error('url') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="col-span-2">
@@ -84,15 +106,8 @@
                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
                             <select id="status" name="status"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                <option selected>
-                                    @if ( $ambil->status == 1)
-                                        Aktif
-                                        @else
-                                        Tidak Aktif
-                                    @endif
-                                </option>
-                                <option value="1">Aktif</option>
-                                <option value="0">Tidak Aktif</option>
+                                <option value="1" @selected($ambil->status == 1)>Aktif</option>
+                                <option value="0" @selected($ambil->status != 1)>Tidak Aktif</option>
                             </select>
                         </div>
                     </div>

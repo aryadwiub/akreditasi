@@ -5,20 +5,71 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Akreditasi;
+use App\Support\BerkasSk;
+use App\Support\StatusInternasional;
 
 class AkreditasiController extends Controller
 {
+        // Sumber data Ajax untuk tabel akreditasi nasional di beranda (DataTables)
+        public function dataNasional()
+        {
+                $nas = DB::select('SELECT
+                a.id_riwayat_akreditasi, a.id_prodi, b.nama_prodi, d.nama_jenjang, c.nm_fakultas, f.akreditasi, a.akreditasi AS kode_akreditasi, a.no_sk_akreditasi, a.lembaga, a.start_date, a.end_date, a.url, a.file
+                FROM `riwayat_akreditasi` AS a
+                LEFT JOIN prodi as b on a.id_prodi = b.id_prodi
+                LEFT JOIN fakultas as c on b.id_fakultas = c.id_fakultas
+                LEFT JOIN jenjang as d on b.id_jenjang = d.id_jenjang
+                LEFT JOIN peringkat as f on a.akreditasi = f.kode
+                WHERE a.status = ? and b.status = ?
+
+                UNION ALL
+
+                -- prodi aktif yang belum punya riwayat akreditasi aktif: tetap ditampilkan, kolom akreditasi kosong (-)
+                SELECT NULL, b.id_prodi, b.nama_prodi, d.nama_jenjang, c.nm_fakultas, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+                FROM prodi as b
+                LEFT JOIN fakultas as c on b.id_fakultas = c.id_fakultas
+                LEFT JOIN jenjang as d on b.id_jenjang = d.id_jenjang
+                WHERE b.status = ?
+                  AND NOT EXISTS (SELECT 1 FROM riwayat_akreditasi r WHERE r.id_prodi = b.id_prodi AND r.status = ?)', [1, 1, 1, 1]);
+
+                // Riwayat dokumen seluruh prodi diambil sekali, lalu dikelompokkan per prodi
+                $dokumen1 = DB::table('riwayat_akreditasi_dokumen as Z')
+                        ->select(
+                                DB::raw('"d" as kode'), 'id', 'id_prodi', 'file as url', DB::raw('NULL as file'),
+                                DB::raw('date_format(tgl_awal,"%Y") as tgl_awal'),
+                                DB::raw('date_format(tgl_akhir,"%Y") as tgl_akhir'),
+                        );
+
+                $riwayat = DB::table('riwayat_akreditasi as A')
+                        ->select(
+                                DB::raw('"n" as kode'), 'id_riwayat_akreditasi as id', 'id_prodi', 'url', 'file',
+                                DB::raw('date_format(start_date,"%Y") as tgl_awal'),
+                                DB::raw('date_format(end_date,"%Y") as tgl_akhir'),
+                        )
+                        ->where('A.status', '=', '0')
+                        ->unionAll($dokumen1)
+                        ->orderBy('tgl_akhir', 'desc')
+                        ->get()
+                        ->groupBy('id_prodi');
+
+                // url/file asli tidak dikirim ke browser; diganti link terenkripsi ke halaman captcha
+                $link = fn ($kode, $id, $url, $file) => ($file || $url) ? route('berkas.form', BerkasSk::token($kode, (int) $id)) : null;
+
+                $data = array_map(function ($row) use ($riwayat, $link) {
+                        $row->riwayat = $riwayat->get($row->id_prodi, collect())
+                                ->map(fn ($d) => ['url' => $link($d->kode, $d->id, $d->url, $d->file), 'tgl_awal' => $d->tgl_awal, 'tgl_akhir' => $d->tgl_akhir])
+                                ->filter(fn ($d) => $d['url'])
+                                ->values();
+                        $row->url = $link('n', $row->id_riwayat_akreditasi, $row->url, $row->file);
+                        unset($row->file, $row->id_riwayat_akreditasi);
+                        return $row;
+                }, $nas);
+
+                return response()->json(['data' => $data]);
+        }
+
         public function index()
         {
-                $nas = DB::select('SELECT 
-                a.id_prodi, b.id_cyber, b.nama_prodi, d.nama_jenjang, c.nm_fakultas, a.akreditasi as singkat, f.akreditasi, a.no_sk_akreditasi, a.start_date, a.end_date, a.lembaga, a.url 
-                FROM `riwayat_akreditasi` AS a 
-                LEFT JOIN prodi as b on a.id_prodi = b.id_prodi 
-                LEFT JOIN fakultas as c on b.id_fakultas = c.id_fakultas 
-                LEFT JOIN jenjang as d on b.id_jenjang = d.id_jenjang 
-                LEFT JOIN jenis_akreditasi as e on a.jenis_akreditasi = e.id_jenis_akreditasi
-                LEFT JOIN peringkat as f on a.akreditasi = f.kode
-                WHERE a.status = ? and b.status = ?', [1, 1]);
 
                 // $data =
                 //         DB::table('prodi')
@@ -60,88 +111,68 @@ class AkreditasiController extends Controller
                 //         ->get();
                 // dd($prodi); 
 
-                $nasional = DB::table('prodi')
-                        ->select(
-                                'jenjang.nama_jenjang',
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "TU" THEN 1 END) AS Terakre_unggul'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "U" THEN 1 END) AS Unggul'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "A" THEN 1 END) AS A'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "BS" THEN 1 END) AS Baik_sekali'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "BA" THEN 1 END) AS Baik'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "B" THEN 1 END) AS B'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "C" THEN 1 END) AS C'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "TM" THEN 1 END) AS Minimum'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "S" THEN 1 END) AS Sementara'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "OO" THEN 1 END) AS Reakreditasi'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "O" THEN 1 END) AS Proses')
-                        )
+                // Peta sebaran nasional dihitung di browser dari data tabel (JSON dataNasional),
+                // sehingga mengikuti filter yang sedang aktif; di sini hanya urutan baris jenjang.
+                $urutan_jenjang = DB::table('jenjang')->orderBy('id_jenjang')->pluck('nama_jenjang');
 
-                        ->join('riwayat_akreditasi', 'prodi.id_prodi', '=', 'riwayat_akreditasi.id_prodi')
-                        ->join('jenjang', 'prodi.id_jenjang', '=', 'jenjang.id_jenjang')
-                        ->where('prodi.status', '=', '1')
-                        ->groupBy('jenjang.id_jenjang')
-                        ->get();
+                // Kolom peta = semua peringkat di tabel referensi: urutan tetap seperti tampilan lama,
+                // peringkat lain menyusul, Persiapan (O) & Proses Reakreditasi (OO) selalu di akhir.
+                $awal = ['TU', 'U', 'A', 'BS', 'BA', 'B', 'C', 'TM', 'S', 'T', 'TP', 'TS'];
+                $akhir = ['OO', 'O'];
+                $kolom_peta = DB::table('peringkat')->orderBy('urutan')->get(['kode', 'akreditasi'])
+                        ->sortBy(fn ($p) => in_array($p->kode, $akhir)
+                                ? 1000 + array_search($p->kode, $akhir)
+                                : (in_array($p->kode, $awal) ? array_search($p->kode, $awal) : 500))
+                        ->map(fn ($p) => ['kode' => $p->kode, 'label' => ucwords(strtolower($p->akreditasi))])
+                        ->values();
 
-                $total_nas = DB::table('prodi')
-                        ->select(
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "TU" THEN 1 END) AS Terakre_unggul'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "U" THEN 1 END) AS Unggul'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "A" THEN 1 END) AS A'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "BS" THEN 1 END) AS Baik_sekali'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "BA" THEN 1 END) AS Baik'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "B" THEN 1 END) AS B'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "C" THEN 1 END) AS C'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "TM" THEN 1 END) AS Minimum'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "S" THEN 1 END) AS Sementara'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "OO" THEN 1 END) AS Reakreditasi'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi.akreditasi = "O" THEN 1 END) AS Proses')
-                        )
-
-                        ->join('riwayat_akreditasi', 'prodi.id_prodi', '=', 'riwayat_akreditasi.id_prodi')
-                        ->join('jenjang', 'prodi.id_jenjang', '=', 'jenjang.id_jenjang')
-                        ->where('prodi.status', '=', '1')
-                        ->get();
-
-                $internasional = DB::table('riwayat_akreditasi_internasional_series')
-                        ->select(
-                                'jenjang.nama_jenjang',
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "1" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS AUN'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "2" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS ABEST'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "3" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS ASIIN'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "4" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS FIBAA'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "5" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS APHEA'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "6" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS RSC'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "7" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS ASIC')
-                        )
-
-                        ->join('prodi', 'riwayat_akreditasi_internasional_series.id_prodi', '=', 'prodi.id_prodi')
-                        ->rightjoin('jenjang', 'prodi.id_jenjang', '=', 'jenjang.id_jenjang')
-                        ->where('prodi.status', '=', '1')
-                        ->groupBy('jenjang.id_jenjang')
-                        ->orderBy('jenjang.id_jenjang')
-                        ->get();
-
-                $total_inter = DB::table('riwayat_akreditasi_internasional_series')
-                        ->select(
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "1" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS AUN'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "2" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS ABEST'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "3" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS ASIIN'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "4" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS FIBAA'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "5" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS APHEA'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "6" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS RSC'),
-                                DB::raw('COUNT(CASE WHEN riwayat_akreditasi_internasional_series.lembaga = "7" AND riwayat_akreditasi_internasional_series.tgl_berakhir > now() THEN 1 END) AS ASIC')
-                        )
-
-                        ->join('prodi', 'riwayat_akreditasi_internasional_series.id_prodi', '=', 'prodi.id_prodi')
-                        ->rightjoin('jenjang', 'prodi.id_jenjang', '=', 'jenjang.id_jenjang')
-                        ->where('prodi.status', '=', '1')
-                        ->get();
                 // dd($total_nas);
                 return view(
                         'beranda',
                         ['judul' => 'Akreditasi Program Studi'],
-                        compact('nas', 'total_nas', 'total_inter', 'nasional', 'internasional')
+                        compact('urutan_jenjang', 'kolom_peta')
                 );
+        }
+
+
+        // Halaman publik akreditasi internasional (tampilan sama dengan halaman akreditasi prodi)
+        public function internasional()
+        {
+                StatusInternasional::perbaruiHarian();
+
+                return view(
+                        'internasional',
+                        [
+                                'judul' => 'Akreditasi Internasional',
+                                'urutan_jenjang' => DB::table('jenjang')->orderBy('id_jenjang')->pluck('nama_jenjang'),
+                                'kolom_peta' => DB::table('nama_lembaga_internasional')->orderBy('id_akre')->pluck('nama_lembaga'),
+                        ]
+                );
+        }
+
+        // Sumber data Ajax tabel akreditasi internasional: hanya keterangan "Aktif" dari prodi aktif
+        public function dataInternasional()
+        {
+                StatusInternasional::perbaruiHarian();
+
+                $data = DB::table('riwayat_akreditasi_internasional_series as a')
+                        ->select('a.id_riwayat', 'a.url', 'b.nama_prodi', 'c.nama_jenjang', 'd.nm_fakultas', 'e.nama_lembaga',
+                                'a.tgl_berlaku as start_date', 'a.tgl_berakhir as end_date')
+                        ->join('prodi as b', 'a.id_prodi', '=', 'b.id_prodi')
+                        ->leftJoin('jenjang as c', 'b.id_jenjang', '=', 'c.id_jenjang')
+                        ->leftJoin('fakultas as d', 'b.id_fakultas', '=', 'd.id_fakultas')
+                        ->leftJoin('nama_lembaga_internasional as e', 'a.lembaga', '=', 'e.id_akre')
+                        ->where('a.keterangan', '=', StatusInternasional::AKTIF)
+                        ->where('b.status', '=', 1)
+                        ->get()
+                        ->map(function ($row) {
+                                // url asli tidak dikirim ke browser; diganti link terenkripsi ke halaman captcha
+                                $row->url = $row->url ? route('berkas.form', BerkasSk::token('i', (int) $row->id_riwayat)) : null;
+                                unset($row->id_riwayat);
+                                return $row;
+                        });
+
+                return response()->json(['data' => $data]);
         }
 
         public function detail($id_prodi)
