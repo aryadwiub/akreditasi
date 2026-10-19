@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-100">
+<html lang="id" class="h-full bg-gray-100">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     @vite('resources/css/app.css')
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -15,11 +14,16 @@
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.3.4/css/dataTables.tailwindcss.css"></script>
     <script src="https://cdn.tailwindcss.com/"></script>
+    <script>
+        // samakan font CDN Tailwind dengan --font-sans di resources/css/app.css (Inter)
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter Variable"', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', '"Noto Sans"', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'] } } } };
+    </script>
 
+    <link rel="icon" type="image/png" href="{{ asset('img/logo-bpm-bg-putih-removebg-preview.png') }}" />
     <title>SIM AKREDITASI</title>
 </head>
 
-<body class="m-full">
+<body class="m-full font-sans antialiased">
 
     <div class="flex items-center justify-center h-screen bg-gray-700">
 
@@ -27,10 +31,15 @@
     <form class="space-y-6" action="/login" method="POST">
         @csrf
         <h5 class="text-xl font-medium text-gray-900 dark:text-white">Sugeng Rawuh Bolo!</h5>
+        @if ($errors->any())
+            <div class="p-3 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-700 dark:text-red-400">
+                {{ $errors->first() }}
+            </div>
+        @endif
         <div>
             <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
             <input type="text" name="username" id="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" 
-            placeholder="123456789" autofocus required value="{{ old('email') }}"/>
+            placeholder="123456789" autofocus required value="{{ old('username') }}"/>
         </div>
         <div>
             <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
@@ -39,7 +48,7 @@
         <div class="flex items-start">
             <div class="flex items-start">
                 <div class="flex items-center h-5">
-                    <input id="remember" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" required />
+                    <input id="remember" name="remember" type="checkbox" value="1" class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" />
                 </div>
                 <label for="remember" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Remember me</label>
             </div>

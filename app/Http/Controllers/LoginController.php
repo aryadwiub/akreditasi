@@ -22,15 +22,26 @@ class LoginController extends Controller
         ]);
         $infologin = [
             'username' => $request->username,
-            'password' => $request->password
-        ]; 
-        if(Auth::attempt($infologin)){
+            'password' => $request->password,
+            'aktif' => 1,
+        ];
+        if(Auth::attempt($infologin, $request->boolean('remember'))){
             $request->session()->regenerate();
             // return 'sukses';
             return redirect()->intended('/dashboard');
         }else{
-            return 'gagal';
+            return back()->withErrors([
+                'username' => 'Username atau password salah.',
+            ])->onlyInput('username');
         }
-        
+
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
     }
 }

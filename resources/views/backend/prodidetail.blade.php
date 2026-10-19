@@ -1,223 +1,259 @@
 <x-backend-layout>
-    {{-- @php
-    dd($riwayat_nasional);
-@endphp --}}
-    <article class="card relative overflow-x-auto shadow-md sm:rounded-lg px-6 py-3">
-        <div class="group relative grow">
-            <br>
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="table-auto text-sm text-left">
-                    <thead class=" text-xs text-gray-700 dark:text-gray-800">
-                        <tr>
-                            <th scope="col" class="px-3 py-1">Nama Program Studi</th>
-                            <th class="px-3 py-1">:</th>
-                            <th>{{ $detail->nama_prodi }}</th>
-                        </tr>
-                        <tr>
-                            <th scope="col" class="px-3 py-1">Fakultas</th>
-                            <th class="px-3 py-1">:</th>
-                            <th>{{ $detail->nm_fakultas }}</th>
-                        </tr>
-                        <tr>
-                            <th scope="col" class="px-3 py-1">Jenjang</th>
-                            <th class="px-3 py-1">:</th>
-                            <th>{{ $detail->nama_jenjang }}</th>
-                        </tr>
-                        <tr class="px-3 py-1">
-                            <th scope="col" class="px-3 py-1">Terakreditasi Nasional</th>
-                            <th class="px-3 py-1">:</th>
-                            <th>{{ $detail->akreditasi }} </th>
-                        </tr>
-                        <tr class="px-6 py-4">
-                            <th scope="col" class="px-3 py-1">Berlaku Sampai Tanggal</th>
-                            <th class="px-3 py-1">:</th>
-                            <th>{{ $detail->end_date }} </th>
-                        </tr>
-                        <tr>
-                            <th scope="col" class="px-3 py-1">Lembaga Akreditasi Nasional</th>
-                            <th class="px-3 py-1">:</th>
-                            <th>{{ $detail->lembaga }}</th>
-                        </tr>
-                        @if ($detail->internasional != '')
-                            <tr>
-                                <th scope="col" class="px-3 py-1">Terakreditasi Internasional</th>
-                                <th class="px-3 py-1">:</th>
-                                <th>{{ $detail->internasional }}</th>
-                            </tr>
-                            <tr>
-                                <th scope="col" class="px-3 py-1">Berlaku Sampai Tanggl</th>
-                                <th class="px-3 py-1">:</th>
-                                <th>{{ $detail->tgl_berakhir }}</th>
-                            </tr>
-                        @else
-                            <tr>
-                                <th scope="col" class="px-3 py-1">Terakreditasi Internasional</th>
-                                <th class="px-3 py-1">:</th>
-                                <th> Belum Terakreditasi Internasional </th>
-                            </tr>
-                        @endif
-                    </thead>
-                </table>
+
+    {{-- informasi prodi --}}
+    <article class="overflow-hidden rounded-xl bg-white shadow-md ring-1 ring-gray-200">
+
+        {{-- judul --}}
+        <div class="flex flex-col gap-3 border-b border-gray-200 bg-gray-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div class="flex items-start gap-3">
+                <a href="{{ url('prodi/' . $detail->id_fakultas) }}"
+                    class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <svg class="size-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Kembali
+                </a>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">{{ $detail->nama_jenjang }} {{ $detail->nama_prodi }}</h2>
+                    <p class="text-sm text-gray-500">{{ $detail->nm_fakultas }}</p>
+                </div>
             </div>
+            @if ($detail->status == 1)
+                <span class="inline-flex w-fit items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">Prodi Aktif</span>
+            @else
+                <span class="inline-flex w-fit items-center rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-600">Prodi Tidak Aktif</span>
+            @endif
+        </div>
+
+        {{-- ringkasan --}}
+        <dl class="grid grid-cols-1 divide-y divide-gray-200 text-sm sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-3">
+            <div class="px-4 py-3 sm:px-6">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Jenjang</dt>
+                <dd class="mt-1 font-medium text-gray-900">{{ $detail->nama_jenjang }}</dd>
+            </div>
+            <div class="px-4 py-3 sm:px-6">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Akreditasi Nasional</dt>
+                <dd class="mt-1 font-medium text-gray-900">{{ $detail->akreditasi ?: '-' }}</dd>
+            </div>
+            <div class="px-4 py-3 sm:px-6">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Lembaga Akreditasi Nasional</dt>
+                <dd class="mt-1 font-medium text-gray-900">{{ $detail->lembaga ?: '-' }}</dd>
+            </div>
+            <div class="px-4 py-3 sm:px-6">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Berlaku Sampai</dt>
+                <dd class="mt-1 font-medium text-gray-900">{{ $detail->end_date ?: '-' }}</dd>
+            </div>
+            <div class="px-4 py-3 sm:px-6">
+                <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Akreditasi Internasional</dt>
+                <dd class="mt-1 font-medium text-gray-900">
+                    {{ $detail->internasional != '' ? $detail->internasional : 'Belum Terakreditasi Internasional' }}
+                </dd>
+            </div>
+            @if ($detail->internasional != '')
+                <div class="px-4 py-3 sm:px-6">
+                    <dt class="text-xs font-medium uppercase tracking-wider text-gray-500">Internasional Berlaku Sampai</dt>
+                    <dd class="mt-1 font-medium text-gray-900">{{ $detail->tgl_berakhir }}</dd>
+                </div>
+            @endif
+        </dl>
+    </article>
+
+    @if ($errors->any())
+        <div class="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <p class="font-semibold">Data gagal disimpan:</p>
+            <ul class="mt-1 list-disc ps-5">
+                @foreach ($errors->all() as $pesan)
+                    <li>{{ $pesan }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- riwayat akreditasi nasional --}}
+    <article class="mt-6 overflow-hidden rounded-xl bg-white shadow-md ring-1 ring-gray-200">
+        <div class="flex flex-col gap-3 border-b border-gray-200 bg-gray-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Riwayat Akreditasi Nasional</h3>
+                <p class="text-sm text-gray-500">{{ $riwayat_nasional->count() }} data</p>
+            </div>
+            <button data-modal-target="crud-modal" data-modal-toggle="crud-modal" type="button"
+                class="inline-flex w-fit items-center gap-1 rounded-lg bg-gray-800 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <svg class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                </svg>
+                Tambah Data
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-700">
+                <thead class="bg-gray-800 text-xs uppercase tracking-wider text-white">
+                    <tr>
+                        <th scope="col" class="w-12 px-3 py-3 text-center sm:px-4">No</th>
+                        <th scope="col" class="px-3 py-3 text-center sm:px-4">Akreditasi</th>
+                        <th scope="col" class="px-3 py-3 sm:px-4">Lembaga</th>
+                        <th scope="col" class="px-3 py-3 sm:px-4">Nomor SK</th>
+                        <th scope="col" class="whitespace-nowrap px-3 py-3 text-center sm:px-4">Tgl Berlaku</th>
+                        <th scope="col" class="whitespace-nowrap px-3 py-3 text-center sm:px-4">Tgl Berakhir</th>
+                        <th scope="col" class="px-3 py-3 sm:px-4">File</th>
+                        <th scope="col" class="px-3 py-3 text-center sm:px-4">Status SK</th>
+                        <th scope="col" class="px-3 py-3 text-center sm:px-4">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse ($riwayat_nasional as $item)
+                        <tr class="transition-colors odd:bg-white even:bg-gray-50 hover:bg-gray-100">
+                            <td class="px-3 py-3 text-center font-medium text-gray-500 sm:px-4">{{ $loop->iteration }}</td>
+                            <td class="px-3 py-3 text-center font-medium text-gray-900 sm:px-4">{{ $item->akreditasi }}</td>
+                            <td class="whitespace-nowrap px-3 py-3 sm:px-4">{{ $item->lembaga }}</td>
+                            <td class="min-w-40 px-3 py-3 sm:px-4">{{ $item->no_sk_akreditasi }}</td>
+                            <td class="whitespace-nowrap px-3 py-3 text-center sm:px-4">{{ $item->start_date }}</td>
+                            <td class="whitespace-nowrap px-3 py-3 text-center sm:px-4">{{ $item->end_date }}</td>
+                            <td class="px-3 py-3 sm:px-4">
+                                @if ($item->file)
+                                    <a href="{{ url('filesk/' . $item->id_riwayat_akreditasi) }}" target="_blank" rel="noopener"
+                                        class="whitespace-nowrap font-medium text-indigo-600 hover:underline">Lihat File</a>
+                                    <span class="ms-1 inline-flex rounded bg-gray-200 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600">UPLOAD</span>
+                                @elseif ($item->url)
+                                    <a href="{{ $item->url }}" target="_blank" rel="noopener"
+                                        class="whitespace-nowrap font-medium text-indigo-600 hover:underline">Buka Link</a>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-3 text-center sm:px-4">
+                                @if ($item->status == '1')
+                                    <span class="inline-flex items-center whitespace-nowrap rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Aktif</span>
+                                @else
+                                    <span class="inline-flex items-center whitespace-nowrap rounded-full bg-gray-200 px-2.5 py-0.5 text-xs font-medium text-gray-600">Tidak Aktif</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-3 sm:px-4">
+                                <div class="flex items-center justify-center gap-1">
+                                    <a href="{{ url('ubah/' . $item->id_riwayat_akreditasi) }}" title="Ubah"
+                                        class="rounded-lg p-1.5 text-gray-600 transition hover:bg-gray-200 hover:text-gray-900">
+                                        <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
+                                            <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
+                                        </svg>
+                                        <span class="sr-only">Ubah</span>
+                                    </a>
+                                    <form action="{{ url('hapus/' . $item->id_riwayat_akreditasi) }}" method="post">
+                                        @method('delete')
+                                        @csrf
+                                        <input type="hidden" name="prodi" value="{{ $item->id_prodi }}">
+                                        <button type="submit" title="Hapus"
+                                            onclick="return confirm('Yakin dihapus ta om? (iki datae akreditasi nasional)')"
+                                            class="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 hover:text-red-700">
+                                            <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd"
+                                                    d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            <span class="sr-only">Hapus</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="9" class="px-6 py-8 text-center text-gray-500">Belum ada riwayat akreditasi nasional.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </article>
 
-    <article class="w-full card relative overflow-x-auto shadow-md sm:rounded-lg px-6 py-3">
-        <div class="group relative grow">
-            <h3 class="mt-1 text-lg/6 font-semibold text-gray-900 group-hover:text-gray-600">
-                <span class="absolute inset-0"></span>
-                History Akreditasi Nasional
-            </h3>
-            <hr>
-            <div class="w-full relative overflow-x-auto shadow-md sm:rounded-lg">
-                <button data-modal-target="crud-modal" data-modal-toggle="crud-modal"
-                    class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    type="button">
-                    Tambah Data
-                </button>
-                <hr>
-                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-200">
-                        <tr>
-                            <th scope="col" class="text-center px-6 py-3">Akreditasi</th>
-                            <th class="text-center px-6 py-3">Lembaga</th>
-                            <th class="text-center px-6 py-3">Nomor SK</th>
-                            <th class="text-center px-6 py-3">Tanggal Berlaku</th>
-                            <th class="text-center px-6 py-3">Tanggal Berakhir</th>
-                            <th class="text-center px-6 py-3">File</th>
-                            <th class="text-center px-6 py-3">Status SK</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($riwayat_nasional as $riwayat_nasional)
-                            <tr
-                                class="whitespace-wrap odd:bg-white odd:dark:bg-gray-200 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-400 border-gray-200">
-                                <td scope="row"
-                                    class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $riwayat_nasional->akreditasi }}</td>
-                                <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $riwayat_nasional->lembaga }}</td>
-                                <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $riwayat_nasional->no_sk_akreditasi }}</td>
-                                <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $riwayat_nasional->start_date }}</td>
-                                <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $riwayat_nasional->end_date }}</td>
-                                <td class="w-1/2 text-center text-gray-900 whitespace-wrap dark:text-black">
-                                    {{ $riwayat_nasional->url }}</td>
-                                <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    @if ($riwayat_nasional->end_date > now())
-                                        Aktif
-                                    @else
-                                        Tidak Aktif
-                                    @endif
-                                </td>
-                                <td class="px-1 text-center whitespace-nowrap ">
-                                    <a class="" type="submit"
-                                        href="{{ url('ubah/' . $riwayat_nasional->id_riwayat_akreditasi) }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0006ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>                                     
-                                    </a>
-                                </td>   
-                                <td class="px-1 text-center whitespace-nowrap ">    
-                                <form action="{{ url('hapus/' . $riwayat_nasional->id_riwayat_akreditasi) }}" method="post" class="d-inline">
-                                    @method('delete')
-                                    @csrf
-                                    <input type="text" name="prodi" id="prodi" value="{{ $riwayat_nasional->id_prodi }}" hidden>
-                                    <button class="" onclick="return confirm('Yakin dihapus ta om? (iki datae akreditasi nasional)')">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"></path><path d="m12 9 6 6"></path><path d="m18 9-6 6"></path></svg>
-                                   </button>
-                                 </form>
-
-                                {{-- <button class="" onclick="event.preventDefault();document.getElementById('delete').submit();">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"></path><path d="m12 9 6 6"></path><path d="m18 9-6 6"></path></svg>
-                                </button>
-                                <form id="delete" action="{{ url('hapus/' . $riwayat_nasional->id_riwayat_akreditasi) }}" method="post">
-                                </form> --}}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+    {{-- riwayat akreditasi internasional --}}
+    <article class="mt-6 overflow-hidden rounded-xl bg-white shadow-md ring-1 ring-gray-200">
+        <div class="flex flex-col gap-3 border-b border-gray-200 bg-gray-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Riwayat Akreditasi Internasional</h3>
+                <p class="text-sm text-gray-500">{{ $riwayat_internasional->count() }} data</p>
             </div>
+            <button data-modal-target="crud-modal-internasional" data-modal-toggle="crud-modal-internasional" type="button"
+                class="inline-flex w-fit items-center gap-1 rounded-lg bg-gray-800 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <svg class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+                </svg>
+                Tambah Data
+            </button>
         </div>
-    </article>
-<br>
-    <article class="w-full card relative overflow-x-auto shadow-md sm:rounded-lg px-6 py-3">
-        <div class="group relative grow">
-            <h3 class="mt-1 text-lg/6 font-semibold text-gray-900 group-hover:text-gray-600">
-                <span class="absolute inset-0"></span>
-                History Akreditasi Internasional
-            </h3>
-            <hr>
-            <div class="w-full relative overflow-x-auto shadow-md sm:rounded-lg">
-                <button data-modal-target="crud-modal-internasional" data-modal-toggle="crud-modal-internasional"
-                    class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    type="button">
-                    Tambah Data
-                </button>
-                <hr>
-                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-200">
-                        <tr>
-                            {{-- <th scope="col" class="text-center px-6 py-3">Akreditasi</th> --}}
-                            <th class="text-center px-6 py-3">Lembaga</th>
-                            {{-- <th class="text-center px-6 py-3">Nomor SK</th> --}}
-                            <th class="text-center px-6 py-3">Tanggal Berlaku</th>
-                            <th class="text-center px-6 py-3">Tanggal Berakhir</th>
-                            <th class="text-center px-6 py-3">File</th>
-                            <th class="text-center px-6 py-3">Status SK</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($riwayat_internasional as $detail)
-                            <tr
-                                class="whitespace-wrap odd:bg-white odd:dark:bg-gray-200 even:bg-gray-50 even:dark:bg-gray-200 border-b dark:border-gray-400 border-gray-200">
-                                {{-- <td scope="row"
-                                    class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $detail->internasional }}</td> --}}
-                                <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $detail->nama_lembaga }}</td>
-                                {{-- <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $riwayat_nasional->no_sk_akreditasi }}</td> --}}
-                                <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $detail->tgl_berlaku }}</td>
-                                <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    {{ $detail->tgl_berakhir }}</td>
-                                <td class="w-1/2 text-center text-gray-900 whitespace-wrap dark:text-black">
-                                    {{ $detail->url }}</td>
-                                <td class="px-3 py-2 text-center text-gray-900 whitespace-nowrap dark:text-black">
-                                    @if ($detail->tgl_berakhir > now())
-                                        Aktif
-                                    @else
-                                        Tidak Aktif
-                                    @endif
-                                </td>
-                                <td class=" text-center whitespace-nowrap ">
-                                    <a class="" type="button"
-                                        href="{{ url('ubahinter/' . $detail->id_riwayat) }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0006ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>                                     
-                                    </a>
-                                </td>
 
-                                <td class=" text-center whitespace-nowrap">                                       
-                                <form action="{{ url('hapusinter/' . $detail->id_riwayat) }}" method="post" class="d-inline">
-                                    @method('delete')
-                                    @csrf
-                                    <input type="text" name="prodi" id="prodi" value="{{ $detail->id_prodi }}" hidden>
-                                    <button class="" onclick="return confirm('Yakin dihapus ta om? (iki datae akreditasi internasional)')">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"></path><path d="m12 9 6 6"></path><path d="m18 9-6 6"></path></svg>
-                                   </button>
-                                 </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-700">
+                <thead class="bg-gray-800 text-xs uppercase tracking-wider text-white">
+                    <tr>
+                        <th scope="col" class="w-12 px-3 py-3 text-center sm:px-4">No</th>
+                        <th scope="col" class="px-3 py-3 sm:px-4">Lembaga</th>
+                        <th scope="col" class="whitespace-nowrap px-3 py-3 text-center sm:px-4">Tgl Berlaku</th>
+                        <th scope="col" class="whitespace-nowrap px-3 py-3 text-center sm:px-4">Tgl Berakhir</th>
+                        <th scope="col" class="px-3 py-3 sm:px-4">File</th>
+                        <th scope="col" class="px-3 py-3 text-center sm:px-4">Status SK</th>
+                        <th scope="col" class="px-3 py-3 text-center sm:px-4">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse ($riwayat_internasional as $item)
+                        <tr class="transition-colors odd:bg-white even:bg-gray-50 hover:bg-gray-100">
+                            <td class="px-3 py-3 text-center font-medium text-gray-500 sm:px-4">{{ $loop->iteration }}</td>
+                            <td class="whitespace-nowrap px-3 py-3 font-medium text-gray-900 sm:px-4">{{ $item->nama_lembaga }}</td>
+                            <td class="whitespace-nowrap px-3 py-3 text-center sm:px-4">{{ $item->tgl_berlaku }}</td>
+                            <td class="whitespace-nowrap px-3 py-3 text-center sm:px-4">{{ $item->tgl_berakhir }}</td>
+                            <td class="px-3 py-3 sm:px-4">
+                                @if ($item->url)
+                                    <a href="{{ $item->url }}" target="_blank" rel="noopener"
+                                        class="font-medium text-indigo-600 hover:underline">Buka File</a>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-3 text-center sm:px-4">
+                                @if ($item->tgl_berakhir > now())
+                                    <span class="inline-flex items-center whitespace-nowrap rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Aktif</span>
+                                @else
+                                    <span class="inline-flex items-center whitespace-nowrap rounded-full bg-gray-200 px-2.5 py-0.5 text-xs font-medium text-gray-600">Tidak Aktif</span>
+                                @endif
+                            </td>
+                            <td class="px-3 py-3 sm:px-4">
+                                <div class="flex items-center justify-center gap-1">
+                                    <a href="{{ url('ubahinter/' . $item->id_riwayat) }}" title="Ubah"
+                                        class="rounded-lg p-1.5 text-gray-600 transition hover:bg-gray-200 hover:text-gray-900">
+                                        <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
+                                            <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
+                                        </svg>
+                                        <span class="sr-only">Ubah</span>
+                                    </a>
+                                    <form action="{{ url('hapusinter/' . $item->id_riwayat) }}" method="post">
+                                        @method('delete')
+                                        @csrf
+                                        <input type="hidden" name="prodi" value="{{ $item->id_prodi }}">
+                                        <button type="submit" title="Hapus"
+                                            onclick="return confirm('Yakin dihapus ta om? (iki datae akreditasi internasional)')"
+                                            class="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 hover:text-red-700">
+                                            <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd"
+                                                    d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            <span class="sr-only">Hapus</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">Belum ada riwayat akreditasi internasional.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </article>
 
@@ -304,12 +340,17 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 focus:outline-none"
                                 required="">
                         </div> --}}
-                        <div class="col-span-2">
-                            <label for="file"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Link File</label>
-                            <input type="text" name="file" id="file"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                placeholder="" required="">
+                        <div class="col-span-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                            <p class="mb-2 text-xs text-gray-500">Isi <b>salah satu</b>: upload file PDF atau link file. Jika keduanya diisi, file upload yang ditampilkan ke publik.</p>
+                            <label for="berkas"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload File (PDF, maks. 10 MB)</label>
+                            <input type="file" name="berkas" id="berkas" accept="application/pdf,.pdf"
+                                class="block w-full cursor-pointer rounded-lg border border-gray-300 bg-white text-sm text-gray-900 file:mr-3 file:border-0 file:bg-gray-800 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-gray-700">
+                            <label for="url"
+                                class="mt-3 block mb-2 text-sm font-medium text-gray-900 dark:text-white">Link File</label>
+                            <input type="url" name="url" id="url" value="{{ old('url') }}"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                placeholder="https://...">
                         </div>
 
                         <div class="col-span-2">
@@ -324,7 +365,7 @@
                         </div>
                     </div>
                     <button type="submit" onclick="return confirm('wes tit data nasionale?')"
-                        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        class="text-white inline-flex items-center bg-gray-800 hover:bg-gray-700 focus:ring-2 focus:outline-none focus:ring-indigo-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                         <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"
@@ -404,7 +445,7 @@
                         </div>
                     </div>
                     <button type="submit" onclick="return confirm('wes tit data internasionale?')"
-                        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        class="text-white inline-flex items-center bg-gray-800 hover:bg-gray-700 focus:ring-2 focus:outline-none focus:ring-indigo-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                         <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"

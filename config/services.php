@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // API SatuData UNAIR (login JWT -> Bearer token)
+    'satudata' => [
+        'url' => env('SATUDATA_URL', 'https://api.satudata.unair.ac.id'),
+        'username' => env('SATUDATA_USERNAME'),
+        'password' => env('SATUDATA_PASSWORD'),
+    ],
+
 ];

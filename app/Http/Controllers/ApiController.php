@@ -2,79 +2,122 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        // $curl = curl_init();
+        //
+    }
 
-        // curl_setopt_array($curl, array(
-        //     CURLOPT_URL => 'https://akreditasi.bpm.unair.ac.id/index.php/api/all_national?token=bpmu4jamu!2021%24',
-        //     CURLOPT_RETURNTRANSFER => true,
-        //     CURLOPT_ENCODING => '',
-        //     CURLOPT_MAXREDIRS => 10,
-        //     CURLOPT_TIMEOUT => 0,
-        //     CURLOPT_FOLLOWLOCATION => true,
-        //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //     CURLOPT_CUSTOMREQUEST => 'GET',
-        //     CURLOPT_HTTPHEADER => array(
-        //         'Cookie: ci_session=r8o90gij6nfr8kc787htbess9a0ovbaq'
-        //     ),
-        // ));
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
 
-        // $response = curl_exec($curl);
-        // // $response2 = json_decode($response, true);
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
 
-        // curl_close($curl);
-        // // echo $response2;
-        // // var_dump(json_decode($response2));
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
 
-        // foreach (json_decode($response, true) as $key) {
-        //     echo $key['id_prodi'] . "<br>";
-        // }
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
 
-        $curl = curl_init();
+	public function nasional()
+    {
+        $nas = DB::table('riwayat_akreditasi as a')
+            ->select([
+                'a.id_prodi',
+                'b.id_cyber',
+                'b.nama_prodi',
+                'd.nama_jenjang',
+                'c.nm_fakultas',
+                'a.akreditasi',
+                'f.akreditasi as nama_akreditasi',
+                'a.no_sk_akreditasi',
+                'a.start_date',
+                'a.end_date',
+                'a.lembaga'
+            ])
+            ->leftJoin('prodi as b', 'a.id_prodi', '=', 'b.id_prodi')
+            ->leftJoin('fakultas as c', 'b.id_fakultas', '=', 'c.id_fakultas')
+            ->leftJoin('jenjang as d', 'b.id_jenjang', '=', 'd.id_jenjang')
+            ->leftJoin('jenis_akreditasi as e', 'a.jenis_akreditasi', '=', 'e.id_jenis_akreditasi')
+            ->leftJoin('peringkat as f', 'a.akreditasi', '=', 'f.kode')
+            ->where('a.status', 1)
+            ->where('b.status', 1)
+            ->get();
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.satudata.unair.ac.id/login?username=bpm&password=s4tud4t4bpm!123',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            // CURLOPT_HTTPHEADER => array('Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6IjkyMTdiZTZkLTQwMmItNGEwNS05MWEyLWZhYTJiN2UyOWRmNiIsImFkbWluIjpmYWxzZSwiZXhwIjoxNzY4MzY1ODczLCJuYW1lIjoiQmFkYW4gUGVuamFtaW5hbiBNdXR1IiwidXNlcm5hbWUiOiJicG0ifQ.EognYANKJw_wsPUAQEvBXnhAaGzWrD-eqJzYI3M5Uxs'),
-        ));
+        if ($nas->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data akreditasi nasional tidak ditemukan',
+                'data'    => []
+            ], 404); // Mengembalikan 404 jika kosong (opsional, tergantung kebutuhan)
+        }
 
-        $response = curl_exec($curl);
-        // $response1 = json_decode($response, true);
-        // echo $response1;
+        return response()->json([
+            'success' => true,
+            'data'    => $nas
+        ], 200);
+    }
 
-        curl_close($curl);
-        // echo $response;
-        // echo $response1['token'];
-        // $jwt = JWT::
-        foreach (json_decode($response, true) as $key) {
-             echo $key['token'] . "<br>";
-             const token = "YOUR_JWT_TOKEN_HERE";
-     const url = "https://api.contoh.com/data";
-     
-     fetch(url, {
-       method: 'GET',
-       headers: {
-         'Authorization': `Bearer ${token}`,
-         'Content-Type': 'application/json'
-       }
-     })
-     .then(response => response.json())
-     .then(data => console.log(data))
-     .catch(error => console.error('Error:', error));
-         }
+	public function internasional()
+    {
+        $inter = DB::table('riwayat_akreditasi_internasional_series as a')
+    	->select([
+        	'a.id_prodi', 
+        	'b.id_cyber', 
+        	'b.nama_prodi', 
+        	'c.nama_jenjang', 
+        	'd.nm_fakultas', 
+        	'a.tgl_berlaku', 
+        	'a.tgl_berakhir', 
+        	'e.nama_lembaga'
+    	])
+    	->join('prodi as b', 'a.id_prodi', '=', 'b.id_prodi')
+    	->join('jenjang as c', 'b.id_jenjang', '=', 'c.id_jenjang')
+    	->join('fakultas as d', 'b.id_fakultas', '=', 'd.id_fakultas')
+    	->join('nama_lembaga_internasional as e', 'a.lembaga', '=', 'e.id_akre')
+    	->where('a.tgl_berakhir', '>', now())
+    	->get();
 
+        if ($inter->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data akreditasi internasional tidak ditemukan',
+                'data'    => []
+            ], 404); // Mengembalikan 404 jika kosong (opsional, tergantung kebutuhan)
+        }
 
-        return view('API/api');
+        return response()->json([
+            'success' => true,
+            'data'    => $inter
+        ], 200);
     }
 }

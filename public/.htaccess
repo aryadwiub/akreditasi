@@ -23,3 +23,11 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Batas upload file SK (PDF maks. 10 MB)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 12M
+    # server menolak alokasi memori JIT untuk regex -> peringatan yang dijadikan error 500 oleh Laravel
+    php_value pcre.jit 0
+</IfModule>
